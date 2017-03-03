@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package pb;
+
+message KV {
+    bytes key = 1;
+    bytes value = 2;
+}
+
+message MapIn {
+    repeated KV kvs = 1;
+}
+
+message MapOut {
+    repeated KV kvs = 1;
+}
+
+message ReduceIn {
+    repeated KV kvs = 1;
+}
+
+message ReduceOut {
+    repeated KV kvs = 1;
+}
+
+service Compute {
+    rpc MapIO(MapIn) returns (MapOut) {}
+    rpc ReduceIO(ReduceIn) returns (ReduceOut) {}
+}
