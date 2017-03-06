@@ -18,22 +18,14 @@ type ReducerWrap struct {
 
 func (mw *MapperWrap) Map(rr records.RecordReader, ctx job.Context) {
 	aggregated := []records.Record{}
-	for {
-		// FIXME: 64k
-		items, err := rr.ReadRecord(1 << 16)
-		if err != nil {
-		}
-		if len(items) == 0 {
-			break
-		}
+	for item := range rr.Iter() {
 		// TODO: grpc call compute
-		//
 		mapResult := []records.Record{}
-		//aggregated = append(aggregated, mapResult...)
-		ctx.Write(aggregated)
+		aggregated = append(aggregated, mapResult...)
+		//rw.WriteRecords(mapResult)
 	}
-	sort.Sort(ByKey(aggregated))
-	//ctx.Write(aggregated)
+	//sort.Sort(ByKey(aggregated))
+	ctx.Write(aggregated)
 }
 
 func (rw *ReducerWrap) Reduce(rr records.RecordReader, ctx job.Context) {

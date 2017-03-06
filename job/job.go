@@ -1,66 +1,67 @@
 package job
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/naturali/kmr/records"
 )
 
-type Context struct {
-}
-
-type JobInfo struct {
-	MapperCount  int
-	ReducerCount int
-}
-
 type Job interface {
-	Configure(JobInfo)
+	Configure(JobConfig)
 	Launch()
+	Abort()
 
-	KillJob()
+	GetStatus()
 	IsJobComplete()
 }
 
 type kubeJob struct {
-	jobInfo  JobInfo
-	mappers  []Task
-	reducers []Task
+	jobConfig JobConfig
+	mappers   []Task
+	reducers  []Task
 }
 
 func NewKubeJob() *kubeJob {
 	return &kubeJob{
-		jobInfo: JobInfo{},
+		jobConfig: JobConfig{},
 	}
 }
 
 type Task struct {
-	id string
+	id    string
+	Phase string
 }
 
 func (job *kubeJob) Launch() {
 	// fake inits
-	dataSource = []string{"key1", "key2"}
-	mapperCount = len(dataSource)
-	reducerCount = 5
+	dataSource := []string{"file1, file2", "file3,file4", "file5"}
+	mapperCount := len(dataSource)
+	reducerCount := 5
 
-	for key := range dataSource {
-		taskID := kickOffMapTask(map[string]string{
-			"key": key,
-		})
-		job.mappers = append(job.mappers, Task{taskID})
+	for shards := range dataSource {
+		task := &Task{
+			phase:   "map",
+			handler: "name.of.handler",
+			shards:  shards,
+		}
+		kickOffTask(task)
+
+		job.mappers = append(job.mappers, task)
 	}
 
 	job.waitForMapToComplete()
 
 	job.shuffle()
 
-	// fake: actually from shuffle()
+	// fake: from shuffle()
 	reduceKeys := []string{}
 	for key := range reduceKeys {
-		taskID = kickOffReduceTask(map[string]string{
-			"key": key,
-		})
+		task := &Task{
+			phase:   "reduce",
+			handler: "name.of.handler",
+			shards:  shards,
+		}
+		kickOffask(task)
 		job.reducers = append(job.reducers, Task{taskID})
 	}
 	job.waitForReduceToComplete()
@@ -73,13 +74,13 @@ func (job *kubeJob) waitForReduceToComplete() {
 }
 
 func (job *kubeJob) Shuffle() {
-	for i := 0; i < job.jobInfo.MapperCount; i++ {
-		for j := 0; j < job.jobInfo.ReducerCount; j++ {
+	for i := 0; i < job.jobConfig.MapperCount; i++ {
+		for j := 0; j < job.jobConfig.ReducerCount; j++ {
 			// TODO:
 		}
 	}
 }
 
-func (ctx *Context) Write(records []records.Record) {
-	fmt.Println("Write not implementd")
+func (job *kubeJob) kickOffTask(task *Task) {
+	// TODO: submit a k8s job
 }

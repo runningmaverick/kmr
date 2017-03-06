@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/ceph/go-ceph/rados"
 	"io/ioutil"
+
+	"github.com/ceph/go-ceph/rados"
 )
 
 func main() {
+	// for test ceph, ignore this file
 	mons := "172.11.51.7:6789"
 	secret := []byte("AQB+OJ9YAJSoHhAACOtovk+EY2QDiEksGM1XkA==")
 
